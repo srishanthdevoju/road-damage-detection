@@ -10,7 +10,7 @@ from PIL import Image
 # Load CNN Model
 # -----------------------------
 
-model = load_model("road_damage_model.keras")
+model = load_model("road_damage_model.h5", compile=False)
 
 # -----------------------------
 # Class Labels
@@ -56,22 +56,17 @@ uploaded_file = st.file_uploader(
 
 def predict_image(image):
 
-    # Convert image to NumPy array
     img = np.array(image)
 
-    # Resize image
     resized = cv2.resize(img, (128,128))
 
-    # Normalize
     normalized = resized / 255.0
 
-    # Reshape for CNN
     reshaped = np.reshape(
         normalized,
         (1,128,128,3)
     )
 
-    # Predict
     prediction = model.predict(reshaped)
 
     predicted_class = np.argmax(prediction)
@@ -86,29 +81,24 @@ def predict_image(image):
 
 if uploaded_file is not None:
 
-    # Open image
     image = Image.open(uploaded_file)
 
-    # Display image preview
     st.image(
         image,
         caption="Uploaded Road Image",
         use_container_width=True
     )
 
-    # Predict button
     if st.button("Predict Road Damage"):
 
         predicted_class, confidence = predict_image(image)
 
-        # Show prediction
         st.subheader("Prediction Result")
 
         st.success(
             f"Predicted Class: {class_names[predicted_class]}"
         )
 
-        # Show confidence
         st.subheader("Confidence Score")
 
         st.info(
